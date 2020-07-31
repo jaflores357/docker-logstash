@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+
+    logstash:
+      image: zenviavas/logstash:6.2.3
+      container_name: ${HOSTNAME}_logstash
+      volumes:
+        - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+        - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      ports:
+        - "5000:5000"
+        - "5044:5044"
+        - "9600:9600"
+        - "5045:5045"
+        - "5045:5045/udp"
+      environment:
+        LS_JAVA_OPTS: "-Xmx4g -Xms4g"
+        LOGSTASH_HOST: "$HOSTNAME"
+    exporter:
+      image: zenviavas/logstash_exporter:1.0
+      container_name: ${HOSTNAME}_logstash_exporter
+      ports:
+        - "9198:9198"
+      command: ["--logstash.endpoint", "http://logstash:9600"]
